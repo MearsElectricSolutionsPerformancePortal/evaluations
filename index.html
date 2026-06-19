@@ -633,7 +633,7 @@
       <span>📝 Collaborative Mode</span>
       <span style="font-size: 10px; background: rgba(255,255,255,0.25); padding: 2px 6px; border-radius: 12px; font-weight: normal;">PRE-FILLED EVALUATION</span>
     </div>
-    Reviewing supervisor's ratings and comments. Please fill out the <strong>Employee Self-Reflection</strong> section, sign, and click <strong>Email Evaluation to Supervisor</strong>.
+    Reviewing supervisor's ratings and comments. Please fill out the <strong>Employee Self-Reflection</strong> section, sign, and click <strong>Send Back to Supervisor (Text or Email)</strong>.
     <button onclick="resetCollabMode()" style="background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; float: right; margin-top: -12px;">Reset Form</button>
     <div style="clear: both;"></div>
   </div>
@@ -980,32 +980,24 @@
     </div>
 
     <!-- ACTION BUTTONS -->
-    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px;">
-      <!-- STEP 1: Supervisor sends to employee -->
-      <button class="action-btn" onclick="sendToEmployee()" style="background: linear-gradient(135deg, #6366f1, #4f46e5); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px;">
+      <!-- Main Action Button (context-aware: Send to Employee or Send back to Supervisor) -->
+      <button class="action-btn" id="mainActionBtn" onclick="handleMainAction()" style="background: linear-gradient(135deg, #6366f1, #4f46e5); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
           <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.236-.236 1.178Z"/>
         </svg>
-        Send to Employee for Self-Reflection
+        <span id="mainActionText">Send to Employee for Self-Reflection</span>
       </button>
 
-      <!-- STEP 2: Employee emails back to supervisor -->
-      <button class="action-btn" id="emailSupBtn" onclick="emailEvaluation()" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">
+      <!-- EXPORT/PRINT BUTTON -->
+      <button class="action-btn" onclick="exportPDF()" style="background: linear-gradient(135deg, #475569, #334155); box-shadow: 0 4px 15px rgba(71, 85, 105, 0.3);">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M15.825.12a.5.5 0 0 0-.571-.09L.418 4.184a.5.5 0 0 0-.03.877L7 8.249l3.188 6.611a.5.5 0 0 0 .878-.03l4.854-14.285a.5.5 0 0 0-.095-.525zM6 12.5V8l2-2.5L6 12.5z"/>
+          <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+          <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2V7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v4h-1v-1a2 2 0 0 0-2-2H5z"/>
         </svg>
-        Email Evaluation to Supervisor
+        Generate PDF / Print Evaluation
       </button>
     </div>
-
-    <!-- EXPORT/PRINT BUTTON -->
-    <button class="action-btn" onclick="exportPDF()" style="margin-bottom: 40px;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
-      </svg>
-      Generate PDF / Print Evaluation
-    </button>
   </div>
 
 </div>
@@ -1069,6 +1061,7 @@
   let selectedRole = "";
   let ratings = {}; // Stores key: val (e.g. cv_safety: 4)
   let overallRating = null;
+  let collabMode = false;
 
   // (Initialization moved to window.onload at bottom)
 
@@ -1248,7 +1241,7 @@
     recognition.start();
   }
 
-  // Canvas digital signing logic (touch & mouse support)
+  // Canvas digital signing logic (touch & mouse support with stroke points serialization)
   const canvasesState = {};
   
   function initCanvas(canvasId) {
@@ -1272,7 +1265,15 @@
     let lastX = 0;
     let lastY = 0;
 
-    canvasesState[canvasId] = { canvas, ctx, drawn: false };
+    canvasesState[canvasId] = { 
+      canvas, 
+      ctx, 
+      drawn: false, 
+      strokes: [], 
+      currentStroke: [],
+      width: rect.width,
+      height: rect.height
+    };
 
     function getCoords(e) {
       const r = canvas.getBoundingClientRect();
@@ -1293,24 +1294,40 @@
       const coords = getCoords(e);
       lastX = coords.x;
       lastY = coords.y;
+      canvasesState[canvasId].currentStroke = [{ x: coords.x, y: coords.y }];
       e.preventDefault();
     }
 
     function draw(e) {
       if (!drawing) return;
       const coords = getCoords(e);
-      ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
-      ctx.lineTo(coords.x, coords.y);
-      ctx.stroke();
-      lastX = coords.x;
-      lastY = coords.y;
-      canvasesState[canvasId].drawn = true;
+      
+      const current = canvasesState[canvasId].currentStroke;
+      const lastPt = current[current.length - 1];
+      const dist = Math.sqrt(Math.pow(coords.x - lastPt.x, 2) + Math.pow(coords.y - lastPt.y, 2));
+
+      // Only record point if moved at least 2 pixels to keep stroke payload small
+      if (dist > 2) {
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(coords.x, coords.y);
+        ctx.stroke();
+        lastX = coords.x;
+        lastY = coords.y;
+        current.push({ x: coords.x, y: coords.y });
+        canvasesState[canvasId].drawn = true;
+      }
       e.preventDefault();
     }
 
     function stopDraw() {
-      drawing = false;
+      if (drawing) {
+        drawing = false;
+        const current = canvasesState[canvasId].currentStroke;
+        if (current && current.length > 0) {
+          canvasesState[canvasId].strokes.push(current);
+        }
+      }
     }
 
     // Touch support
@@ -1330,6 +1347,53 @@
     if (!state) return;
     state.ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
     state.drawn = false;
+    state.strokes = [];
+    state.currentStroke = [];
+  }
+
+  // Compress strokes to a percentage-based 0-99 coordinate string (very compact)
+  function getCompressStrokes(canvasId) {
+    const state = canvasesState[canvasId];
+    if (!state || !state.strokes || state.strokes.length === 0) return '';
+    const w = state.width || 300;
+    const h = state.height || 120;
+    return state.strokes.map(stroke => {
+      return stroke.map(pt => {
+        const x = Math.min(99, Math.max(0, Math.round((pt.x / w) * 99)));
+        const y = Math.min(99, Math.max(0, Math.round((pt.y / h) * 99)));
+        return x.toString().padStart(2, '0') + y.toString().padStart(2, '0');
+      }).join('');
+    }).join('|');
+  }
+
+  // Redraw strokes from the compressed string
+  function drawCompressedStrokes(canvasId, strokesStr) {
+    const state = canvasesState[canvasId];
+    if (!state || !strokesStr) return;
+    const w = state.width || 300;
+    const h = state.height || 120;
+    state.strokes = [];
+    state.ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
+    
+    strokesStr.split('|').forEach(strokeStr => {
+      const stroke = [];
+      state.ctx.beginPath();
+      for (let i = 0; i < strokeStr.length; i += 4) {
+        const xPct = parseInt(strokeStr.substr(i, 2)) / 99;
+        const yPct = parseInt(strokeStr.substr(i + 2, 2)) / 99;
+        const x = xPct * w;
+        const y = yPct * h;
+        stroke.push({ x, y });
+        if (i === 0) {
+          state.ctx.moveTo(x, y);
+        } else {
+          state.ctx.lineTo(x, y);
+        }
+      }
+      state.ctx.stroke();
+      state.strokes.push(stroke);
+    });
+    state.drawn = true;
   }
 
   // Generate Print Output & Print Preview
@@ -1471,7 +1535,9 @@
       sc: document.getElementById('supComments').value,
       ec: document.getElementById('empComments').value,
       g1: document.getElementById('goal1').value,
-      g2: document.getElementById('goal2').value
+      g2: document.getElementById('goal2').value,
+      es: getCompressStrokes('empSigCanvas'),
+      ss: getCompressStrokes('supSigCanvas')
     };
     return btoa(unescape(encodeURIComponent(JSON.stringify(state))));
   }
@@ -1525,15 +1591,49 @@
     window.location.href = `mailto:${empEmail}?subject=${subject}&body=${body}`;
   }
 
+  function handleMainAction() {
+    if (collabMode) {
+      sendToSupervisor();
+    } else {
+      sendToEmployee();
+    }
+  }
+
   function sendToEmployee() {
     if (!selectedRole) {
       alert("Please select a role and fill out the ratings first.");
       return;
     }
     const stateStr = serializeFormState();
-    // Build share link using the current URL (strip existing search params)
     const baseUrl = window.location.href.split('?')[0];
     const shareUrl = `${baseUrl}?state=${stateStr}`;
+    
+    document.getElementById('modalHeader').textContent = "Send to Employee";
+    document.getElementById('modalBody').textContent = "Choose how to send this evaluation to the employee. You can copy the link to text it via SMS, WhatsApp, Teams, or click Email Link to draft an email.";
+    
+    const emailBtn = document.getElementById('emailShareBtn');
+    if (emailBtn) {
+      emailBtn.textContent = "Email Link";
+      emailBtn.setAttribute('onclick', 'emailShareLink()');
+    }
+    
+    document.getElementById('shareLinkInput').value = shareUrl;
+    document.getElementById('shareModal').classList.add('active');
+  }
+
+  function sendToSupervisor() {
+    const stateStr = serializeFormState();
+    const baseUrl = window.location.href.split('?')[0];
+    const shareUrl = `${baseUrl}?state=${stateStr}`;
+    
+    document.getElementById('modalHeader').textContent = "Send Back to Supervisor";
+    document.getElementById('modalBody').textContent = "Choose how to send the updated evaluation back to your supervisor. You can copy the link to text it via SMS/iMessage, or click Email to Supervisor to send it via email.";
+    
+    const emailBtn = document.getElementById('emailShareBtn');
+    if (emailBtn) {
+      emailBtn.textContent = "Email to Supervisor";
+      emailBtn.setAttribute('onclick', 'emailEvaluation()');
+    }
     
     document.getElementById('shareLinkInput').value = shareUrl;
     document.getElementById('shareModal').classList.add('active');
@@ -1556,6 +1656,7 @@
     if (stateParam) {
       const state = deserializeFormState(stateParam);
       if (state && state.r) {
+        collabMode = true;
         // Load the role specific questions
         loadRole(state.r);
 
@@ -1597,6 +1698,14 @@
         document.getElementById('goal1').value = state.g1 || '';
         document.getElementById('goal2').value = state.g2 || '';
 
+        // Draw signatures if they exist in state
+        if (state.es) {
+          drawCompressedStrokes('empSigCanvas', state.es);
+        }
+        if (state.ss) {
+          drawCompressedStrokes('supSigCanvas', state.ss);
+        }
+
         // Show collaborative mode banner
         document.getElementById('collabBanner').style.display = 'block';
 
@@ -1605,6 +1714,18 @@
         
         // Change the title subtitle to make it clear this is collaborative
         document.getElementById('evaluationSubtitle').textContent = `${state.r.toUpperCase()} EVALUATION - REVIEW MODE`;
+
+        // Customize the action button text for sharing back-and-forth
+        const mainActionBtn = document.getElementById('mainActionBtn');
+        const mainActionText = document.getElementById('mainActionText');
+        if (mainActionBtn && mainActionText) {
+          mainActionText.textContent = "Send Back to Supervisor (Text or Email)";
+          mainActionBtn.style.background = "linear-gradient(135deg, #10b981, #059669)";
+          mainActionBtn.style.boxShadow = "0 4px 15px rgba(16, 185, 129, 0.4)";
+          mainActionBtn.querySelector('svg').innerHTML = `
+            <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
+          `;
+        }
       }
     }
   }
