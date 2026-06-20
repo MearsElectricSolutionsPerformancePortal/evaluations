@@ -53,6 +53,15 @@
       margin-bottom: 25px;
     }
 
+    .mears-logo {
+      max-height: 70px;
+      max-width: 220px;
+      height: auto;
+      width: auto;
+      margin: 0 auto 12px auto;
+      display: block;
+    }
+
     h1 {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
@@ -641,8 +650,8 @@
   <!-- SHARE MODAL -->
   <div id="shareModal" class="modal-overlay">
     <div class="modal-card">
-      <div class="modal-header">Evaluation Handoff Link</div>
-      <div class="modal-body">
+      <div class="modal-header" id="modalHeader">Evaluation Handoff Link</div>
+      <div class="modal-body" id="modalBody">
         This link encodes all current scores and comments. Copy it to send via text message (SMS, Teams, Slack, etc.) or email it directly.
       </div>
       <div class="link-copy-container">
@@ -650,13 +659,14 @@
         <button onclick="copyShareLink()" class="copy-btn" id="copyBtn">Copy Link</button>
       </div>
       <div class="modal-actions">
-        <button onclick="emailShareLink()" class="copy-btn" style="background: #10b981; margin-right: auto;">Email Link</button>
+        <button onclick="emailShareLink()" class="copy-btn" id="emailShareBtn" style="background: #10b981; margin-right: auto;">Email Link</button>
         <button onclick="closeModal()" class="btn-secondary">Close</button>
       </div>
     </div>
   </div>
   
   <header>
+    <img src="Mears-logo.png" alt="Mears Logo" class="mears-logo">
     <h1>MEARS PERFORMANCE EVALUATIONS PORTAL</h1>
     <div class="subtitle" id="evaluationSubtitle">SELECT A ROLE BELOW TO START</div>
   </header>
