@@ -3,11 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Mears Performance Evaluations Portal</title>
+  <script>
+    if (window.innerWidth >= 768) {
+      window.location.replace('index.html' + window.location.search);
+    }
+  </script>
+  <title>Mears Electric Solutions Performance Portal</title>
   <!-- Google Fonts for premium modern typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
     /* Styling variables for rich premium dark-mode feel combined with print capabilities */
@@ -310,6 +315,71 @@
       color: var(--danger);
     }
 
+    /* Signature Mode Toggle and Type Area */
+    .sig-mode-toggle {
+      display: inline-flex;
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 2px;
+    }
+    
+    .sig-toggle-btn {
+      font-size: 11px;
+      font-weight: 600;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    
+    .sig-toggle-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .sig-type-input {
+      font-family: 'Caveat', cursive !important;
+      font-size: 32px !important;
+      color: #60a5fa !important;
+      background: rgba(0, 0, 0, 0.25) !important;
+      border: 1px solid var(--card-border) !important;
+      border-radius: 8px !important;
+      padding: 12px 16px !important;
+      height: 120px !important;
+      width: 100% !important;
+      text-align: center !important;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+      outline: none !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .sig-type-input:focus {
+      border-color: var(--primary) !important;
+    }
+    
+    .sig-type-input::placeholder {
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+      font-size: 13px !important;
+      color: var(--text-muted) !important;
+      font-style: italic !important;
+    }
+
+    .print-sig-typed {
+      display: none;
+      font-family: 'Caveat', cursive !important;
+      font-size: 22pt !important;
+      color: #1e3a8a !important;
+      margin-bottom: 4px !important;
+      text-align: left !important;
+      padding-left: 10px !important;
+      line-height: 1.2 !important;
+    }
+
     /* Control Buttons */
     .action-btn {
       width: 100%;
@@ -498,7 +568,7 @@
       }
 
       /* Hide interactive buttons and controls */
-      .action-btn, .mic-btn, .sig-btn-clear, #roleSelect, label[for="roleSelect"], .rating-container, #collabBanner, #roleSelectorCard, .modal-overlay {
+      .action-btn, .mic-btn, .sig-btn-clear, .sig-mode-toggle, #roleSelect, label[for="roleSelect"], .rating-container, #collabBanner, #roleSelectorCard, .modal-overlay {
         display: none !important;
       }
 
@@ -620,8 +690,8 @@
         font-size: 9pt !important;
       }
 
-      /* Hide web textareas and canvases */
-      textarea, .signature-area, .details-web-table {
+      /* Hide web textareas, canvases, and typed inputs */
+      textarea, .signature-area, .details-web-table, .sig-type-input {
         display: none !important;
       }
     }
@@ -667,7 +737,7 @@
   
   <header>
     <img src="Mears-logo.png" alt="Mears Logo" class="mears-logo">
-    <h1>MEARS PERFORMANCE EVALUATIONS PORTAL</h1>
+    <h1>MEARS ELECTRIC SOLUTIONS PERFORMANCE PORTAL</h1>
     <div class="subtitle" id="evaluationSubtitle">SELECT A ROLE BELOW TO START</div>
   </header>
 
@@ -681,6 +751,8 @@
       <option value="Foreman">Foreman</option>
       <option value="Superintendent">Superintendent</option>
       <option value="Manager">Manager & Above</option>
+      <option value="Safety Personnel">Safety Personnel</option>
+      <option value="Support Staff">Support Staff</option>
     </select>
   </div>
 
@@ -708,10 +780,6 @@
           <td><input type="text" id="empTitle" readonly></td>
         </tr>
         <tr class="form-group">
-          <td><label for="empDept">Department:</label></td>
-          <td><input type="text" id="empDept" placeholder="Enter department"></td>
-        </tr>
-        <tr class="form-group">
           <td><label for="supName">Supervisor Name:</label></td>
           <td><input type="text" id="supName" placeholder="Enter supervisor"></td>
         </tr>
@@ -720,20 +788,22 @@
           <td><input type="email" id="supEmail" placeholder="supervisor@example.com"></td>
         </tr>
         <tr class="form-group">
-          <td><label for="empStartDate">Start Date:</label></td>
-          <td><input type="date" id="empStartDate"></td>
-        </tr>
-        <tr class="form-group">
           <td><label>Evaluation Period:</label></td>
-          <td style="display: flex; gap: 15px; align-items: center; padding-top: 5px;">
-            <label style="display: inline-flex; align-items: center; font-weight: normal; margin-bottom: 0;">
+          <td style="display: flex; gap: 12px; align-items: center; padding-top: 5px; flex-wrap: wrap;">
+            <label style="display: inline-flex; align-items: center; font-weight: normal; margin-bottom: 0; white-space: nowrap;">
               <input type="radio" name="evalPeriod" value="30-Day" checked style="width: auto; margin-right: 4px;"> 30-Day
             </label>
-            <label style="display: inline-flex; align-items: center; font-weight: normal; margin-bottom: 0;">
+            <label style="display: inline-flex; align-items: center; font-weight: normal; margin-bottom: 0; white-space: nowrap;">
               <input type="radio" name="evalPeriod" value="60-Day" style="width: auto; margin-right: 4px;"> 60-Day
             </label>
-            <label style="display: inline-flex; align-items: center; font-weight: normal; margin-bottom: 0;">
+            <label style="display: inline-flex; align-items: center; font-weight: normal; margin-bottom: 0; white-space: nowrap;">
               <input type="radio" name="evalPeriod" value="90-Day" style="width: auto; margin-right: 4px;"> 90-Day
+            </label>
+            <label style="display: inline-flex; align-items: center; font-weight: normal; margin-bottom: 0; white-space: nowrap;">
+              <input type="radio" name="evalPeriod" value="Transfer" style="width: auto; margin-right: 4px;"> Transfer
+            </label>
+            <label style="display: inline-flex; align-items: center; font-weight: normal; margin-bottom: 0; white-space: nowrap;">
+              <input type="radio" name="evalPeriod" value="Promotional/Other" style="width: auto; margin-right: 4px;"> Promotional/Other
             </label>
           </td>
         </tr>
@@ -750,10 +820,8 @@
           <tr><td>Employee ID:</td><td id="pEmpId"></td></tr>
           <tr><td>Employee Email:</td><td id="pEmpEmail"></td></tr>
           <tr><td>Job Title:</td><td id="pEmpTitle"></td></tr>
-          <tr><td>Department:</td><td id="pEmpDept"></td></tr>
           <tr><td>Supervisor Name:</td><td id="pSupName"></td></tr>
           <tr><td>Supervisor Email:</td><td id="pSupEmail"></td></tr>
-          <tr><td>Start Date:</td><td id="pEmpStartDate"></td></tr>
           <tr><td>Evaluation Period:</td><td id="pPeriod"></td></tr>
         </table>
       </div>
@@ -785,7 +853,7 @@
     <div class="card">
       <div class="card-title">Core Values</div>
       <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; font-style: italic;">
-        Tap the rating (1 to 5) for each value.
+        Tap the rating (1 to 5) for each value. For any rating of Unacceptable (1) or Outstanding (5), enter a comment to justify the rating.
       </p>
       
       <div id="coreValuesContainer">
@@ -810,7 +878,7 @@
     <div class="card">
       <div class="card-title">Functional Competencies</div>
       <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; font-style: italic;">
-        Tap the rating (1 to 5) for each competency.
+        Tap the rating (1 to 5) for each competency. For any rating of Unacceptable (1) or Outstanding (5), enter a comment to justify the rating.
       </p>
       
       <div id="functionalContainer">
@@ -947,34 +1015,72 @@
       
       <!-- Web signature drawing pads -->
       <div class="form-group">
-        <label>Employee Signature:</label>
-        <div class="signature-area">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label style="margin-bottom: 0;">Employee Signature:</label>
+          <div class="sig-mode-toggle">
+            <button type="button" class="sig-toggle-btn active" id="empSigModeDraw" onclick="setSigMode('empSig', 'draw')">Draw</button>
+            <button type="button" class="sig-toggle-btn" id="empSigModeType" onclick="setSigMode('empSig', 'type')">Type</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="display: flex; align-items: flex-start; gap: 8px; font-weight: normal; font-size: 13px; line-height: 1.4; cursor: pointer; color: var(--text);">
+            <input type="checkbox" id="empAck" onchange="toggleAck('emp')" style="margin-top: 3px; cursor: pointer;">
+            <span>I have read and discussed this evaluation with my supervisor.</span>
+          </label>
+        </div>
+        <div class="signature-area" id="empSigCanvasArea">
           <canvas id="empSigCanvas"></canvas>
         </div>
-        <div class="sig-controls">
+        <div class="sig-controls" id="empSigCanvasControls">
           <button type="button" class="sig-btn-clear" onclick="clearCanvas('empSigCanvas')">Clear Signature</button>
+        </div>
+        <div id="empSigTypeArea" style="display: none; position: relative;">
+          <input type="text" id="empSigText" class="sig-type-input" placeholder="Type your full name here..." oninput="syncTypedSignature('empSig')">
         </div>
       </div>
 
       <div class="form-group" style="margin-top: 15px;">
-        <label>Supervisor Signature:</label>
-        <div class="signature-area">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label style="margin-bottom: 0;">Supervisor Signature:</label>
+          <div class="sig-mode-toggle">
+            <button type="button" class="sig-toggle-btn active" id="supSigModeDraw" onclick="setSigMode('supSig', 'draw')">Draw</button>
+            <button type="button" class="sig-toggle-btn" id="supSigModeType" onclick="setSigMode('supSig', 'type')">Type</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="display: flex; align-items: flex-start; gap: 8px; font-weight: normal; font-size: 13px; line-height: 1.4; cursor: pointer; color: var(--text);">
+            <input type="checkbox" id="supAck" onchange="toggleAck('sup')" style="margin-top: 3px; cursor: pointer;">
+            <span>I have read the employee's self reflection and discussed the evaluation with them.</span>
+          </label>
+        </div>
+        <div class="signature-area" id="supSigCanvasArea">
           <canvas id="supSigCanvas"></canvas>
         </div>
-        <div class="sig-controls">
+        <div class="sig-controls" id="supSigCanvasControls">
           <button type="button" class="sig-btn-clear" onclick="clearCanvas('supSigCanvas')">Clear Signature</button>
+        </div>
+        <div id="supSigTypeArea" style="display: none; position: relative;">
+          <input type="text" id="supSigText" class="sig-type-input" placeholder="Type your full name here..." oninput="syncTypedSignature('supSig')">
         </div>
       </div>
 
       <!-- Print layout for signatures -->
       <div class="print-sig-row">
         <div class="print-sig-cell">
+          <div style="font-size: 9.5px; font-style: italic; color: #1e3a8a; margin-bottom: 6px; line-height: 1.35;" id="pEmpAck">
+            ☐ I have read and discussed this evaluation with my supervisor.
+          </div>
           <img class="print-sig-image" id="pEmpSigImg" alt="">
+          <div class="print-sig-typed" id="pEmpSigTyped"></div>
           <div class="print-sig-line">Employee Signature</div>
           <div style="font-size: 8pt; color: #4a5568; font-style: italic;">Date: __________________</div>
         </div>
         <div class="print-sig-cell" style="padding-left: 20px;">
+          <div style="font-size: 9.5px; font-style: italic; color: #1e3a8a; margin-bottom: 6px; line-height: 1.35;" id="pSupAck">
+            ☐ I have read the employee's self reflection and discussed the evaluation with them.
+          </div>
           <img class="print-sig-image" id="pSupSigImg" alt="">
+          <div class="print-sig-typed" id="pSupSigTyped"></div>
           <div class="print-sig-line">Supervisor Signature</div>
           <div style="font-size: 8pt; color: #4a5568; font-style: italic;">Date: __________________</div>
         </div>
@@ -1064,6 +1170,22 @@
       { id: "fc_decisions", name: "Advanced Decision Making", desc: "Resolves major disputes, evaluates risk, and handles client issues." },
       { id: "fc_collab", name: "Cross-Functional Collaboration", desc: "Works across departments (HR, Safety, Finance) to keep projects moving." },
       { id: "fc_risk", name: "Risk Management & Compliance", desc: "Identifies legal or contract risks and enforces protective standards." }
+    ],
+    "Safety Personnel": [
+      { id: "fc_saf_impl", name: "Safety Program Implementation", desc: "Assists with implementing company and regulatory safety/health programs across worksites." },
+      { id: "fc_saf_audit", name: "Compliance Monitoring & Audits", desc: "Regularly monitors worksites, audits safety records, and checks for regulatory/policy compliance." },
+      { id: "fc_saf_train", name: "Safety Training & Instruction", desc: "Leads orientations and helps coordinate, deliver, and evaluate safety training sessions." },
+      { id: "fc_saf_coach", name: "Hazard Recognition & Coaching", desc: "Identifies hazardous conditions or behaviors and coaches personnel on corrective actions." },
+      { id: "fc_saf_report", name: "Incident Investigation & Reporting", desc: "Responds to incidents, conducts reviews, and maintains accurate safety logs and documentation." },
+      { id: "fc_saf_align", name: "Technical Training Alignment", desc: "Assists in aligning technical field training programs with established safety protocols." }
+    ],
+    "Support Staff": [
+      { id: "fc_sup_coord", name: "Project & Administrative Coordination", desc: "Coordinates and supports projects, schedules work/interviews, and updates layouts or schedules." },
+      { id: "fc_sup_doc", name: "Document & Record Management", desc: "Formulates, organizes, and maintains project-specific files, candidate profiles, and contractor records." },
+      { id: "fc_sup_data", name: "Data Compilation & Reporting", desc: "Proficiency in MS Excel to prepare cost/production reporting, manager summaries, or recruitment metrics." },
+      { id: "fc_sup_comm", name: "Stakeholder Liaison & Communication", desc: "Maintains client/GC contact, collaborates with billing, and updates hiring managers or candidates." },
+      { id: "fc_sup_time", name: "Organizational & Time Management", desc: "Prioritizes and manages multiple tasks dynamically in a fast-paced environment to meet project timelines." },
+      { id: "fc_sup_conf", name: "Confidentiality & Compliance", desc: "Follows company standards (e.g. DOT rules) and ensures sensitive employee/candidate information is kept secure and confidential." }
     ]
   };
 
@@ -1072,6 +1194,28 @@
   let ratings = {}; // Stores key: val (e.g. cv_safety: 4)
   let overallRating = null;
   let collabMode = false;
+  let itemComments = {}; // Stores justification comments for individual items
+
+  function saveComment(key, val) {
+    itemComments[key] = val;
+    // Keep print view in sync
+    const pComment = document.getElementById(`pComment-${key}`);
+    if (pComment) {
+      pComment.textContent = val ? "Comment: " + val : "";
+    }
+  }
+
+  function toggleAck(type) {
+    const isChecked = document.getElementById(`${type}Ack`).checked;
+    const pAck = document.getElementById(`p${type.charAt(0).toUpperCase() + type.slice(1)}Ack`);
+    if (pAck) {
+      if (type === 'emp') {
+        pAck.innerHTML = (isChecked ? '☒' : '☐') + " I have read and discussed this evaluation with my supervisor.";
+      } else {
+        pAck.innerHTML = (isChecked ? '☒' : '☐') + " I have read the employee's self reflection and discussed the evaluation with them.";
+      }
+    }
+  }
 
   // (Initialization moved to window.onload at bottom)
 
@@ -1108,13 +1252,20 @@
         <div class="rating-container">
           ${[1,2,3,4,5].map(v => `<button class="rating-btn ${cv.id}-btn" data-val="${v}" onclick="rate('${cv.id}', ${v})">${v}</button>`).join('')}
         </div>
+        <div class="row-comment-container" style="margin-top: 8px; width: 100%;">
+          <input type="text" class="row-comment-input" id="comment-${cv.id}" placeholder="Add justification comment..." style="width: 100%; font-size: 13px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--input-bg); color: var(--text); outline: none;" oninput="saveComment('${cv.id}', this.value)">
+        </div>
       `;
       cvContainer.appendChild(row);
 
       // Print Row
       const pRow = document.createElement('tr');
       pRow.innerHTML = `
-        <td><strong>${cv.name}</strong><br/><span style="font-size: 8pt; color: #4a5568; font-style: italic;">${cv.desc}</span></td>
+        <td>
+          <strong>${cv.name}</strong><br/>
+          <span style="font-size: 8pt; color: #4a5568; font-style: italic;">${cv.desc}</span>
+          <div style="font-size: 8pt; color: #1e3a8a; font-style: italic; margin-top: 3px;" id="pComment-${cv.id}"></div>
+        </td>
         ${[1,2,3,4,5].map(v => `<td class="rating-val" id="pVal-${cv.id}-${v}">☐</td>`).join('')}
       `;
       printCvBody.appendChild(pRow);
@@ -1138,13 +1289,20 @@
         <div class="rating-container">
           ${[1,2,3,4,5].map(v => `<button class="rating-btn ${fc.id}-btn" data-val="${v}" onclick="rate('${fc.id}', ${v})">${v}</button>`).join('')}
         </div>
+        <div class="row-comment-container" style="margin-top: 8px; width: 100%;">
+          <input type="text" class="row-comment-input" id="comment-${fc.id}" placeholder="Add justification comment..." style="width: 100%; font-size: 13px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--input-bg); color: var(--text); outline: none;" oninput="saveComment('${fc.id}', this.value)">
+        </div>
       `;
       funcContainer.appendChild(row);
 
       // Print Row
       const pRow = document.createElement('tr');
       pRow.innerHTML = `
-        <td><strong>${fc.name}</strong><br/><span style="font-size: 8pt; color: #4a5568; font-style: italic;">${fc.desc}</span></td>
+        <td>
+          <strong>${fc.name}</strong><br/>
+          <span style="font-size: 8pt; color: #4a5568; font-style: italic;">${fc.desc}</span>
+          <div style="font-size: 8pt; color: #1e3a8a; font-style: italic; margin-top: 3px;" id="pComment-${fc.id}"></div>
+        </td>
         ${[1,2,3,4,5].map(v => `<td class="rating-val" id="pVal-${fc.id}-${v}">☐</td>`).join('')}
       `;
       printFuncBody.appendChild(pRow);
@@ -1352,6 +1510,32 @@
     canvas.addEventListener('mouseleave', stopDraw);
   }
 
+  function setSigMode(prefix, mode) {
+    const drawBtn = document.getElementById(prefix + 'ModeDraw');
+    const typeBtn = document.getElementById(prefix + 'ModeType');
+    const canvasArea = document.getElementById(prefix + 'CanvasArea');
+    const canvasControls = document.getElementById(prefix + 'CanvasControls');
+    const typeArea = document.getElementById(prefix + 'TypeArea');
+    
+    if (mode === 'type') {
+      drawBtn.classList.remove('active');
+      typeBtn.classList.add('active');
+      canvasArea.style.display = 'none';
+      if (canvasControls) canvasControls.style.display = 'none';
+      typeArea.style.display = 'block';
+    } else {
+      drawBtn.classList.add('active');
+      typeBtn.classList.remove('active');
+      canvasArea.style.display = 'block';
+      if (canvasControls) canvasControls.style.display = 'flex';
+      typeArea.style.display = 'none';
+    }
+  }
+
+  function syncTypedSignature(prefix) {
+    // Left empty for now
+  }
+
   function clearCanvas(canvasId) {
     const state = canvasesState[canvasId];
     if (!state) return;
@@ -1415,10 +1599,8 @@
       document.getElementById('pEmpEmail').textContent = document.getElementById('empEmail').value || '__________________';
     }
     document.getElementById('pEmpTitle').textContent = document.getElementById('empTitle').value;
-    document.getElementById('pEmpDept').textContent = document.getElementById('empDept').value || '__________________';
     document.getElementById('pSupName').textContent = document.getElementById('supName').value || '__________________';
     document.getElementById('pSupEmail').textContent = document.getElementById('supEmail').value || '__________________';
-    document.getElementById('pEmpStartDate').textContent = document.getElementById('empStartDate').value || '__________________';
     
     const checkedPeriod = document.querySelector('input[name="evalPeriod"]:checked');
     const pDate = document.getElementById('evalDate').value;
@@ -1430,19 +1612,33 @@
     document.getElementById('pGoal1').textContent = document.getElementById('goal1').value || 'No goals specified.';
     document.getElementById('pGoal2').textContent = document.getElementById('goal2').value || 'No goals specified.';
 
-    // Export Canvas signatures as inline base64 images for printing
-    if (canvasesState['empSigCanvas'] && canvasesState['empSigCanvas'].drawn) {
+    // Export signatures (drawn image or typed text) for printing
+    const empSigMode = document.getElementById('empSigModeType').classList.contains('active') ? 'type' : 'draw';
+    if (empSigMode === 'type' && document.getElementById('empSigText').value) {
+      document.getElementById('pEmpSigTyped').textContent = document.getElementById('empSigText').value;
+      document.getElementById('pEmpSigTyped').style.display = 'block';
+      document.getElementById('pEmpSigImg').style.display = 'none';
+    } else if (canvasesState['empSigCanvas'] && canvasesState['empSigCanvas'].drawn) {
       document.getElementById('pEmpSigImg').src = canvasesState['empSigCanvas'].canvas.toDataURL();
       document.getElementById('pEmpSigImg').style.display = 'block';
+      document.getElementById('pEmpSigTyped').style.display = 'none';
     } else {
       document.getElementById('pEmpSigImg').style.display = 'none';
+      document.getElementById('pEmpSigTyped').style.display = 'none';
     }
 
-    if (canvasesState['supSigCanvas'] && canvasesState['supSigCanvas'].drawn) {
+    const supSigMode = document.getElementById('supSigModeType').classList.contains('active') ? 'type' : 'draw';
+    if (supSigMode === 'type' && document.getElementById('supSigText').value) {
+      document.getElementById('pSupSigTyped').textContent = document.getElementById('supSigText').value;
+      document.getElementById('pSupSigTyped').style.display = 'block';
+      document.getElementById('pSupSigImg').style.display = 'none';
+    } else if (canvasesState['supSigCanvas'] && canvasesState['supSigCanvas'].drawn) {
       document.getElementById('pSupSigImg').src = canvasesState['supSigCanvas'].canvas.toDataURL();
       document.getElementById('pSupSigImg').style.display = 'block';
+      document.getElementById('pSupSigTyped').style.display = 'none';
     } else {
       document.getElementById('pSupSigImg').style.display = 'none';
+      document.getElementById('pSupSigTyped').style.display = 'none';
     }
 
     // Trigger Print/Export
@@ -1454,10 +1650,8 @@
     const empName = document.getElementById('empName').value || 'Employee';
     const empId = document.getElementById('empId').value || 'N/A';
     const empTitle = document.getElementById('empTitle').value || 'Role';
-    const empDept = document.getElementById('empDept').value || 'N/A';
     const supName = document.getElementById('supName').value || 'Supervisor';
     const supEmail = document.getElementById('supEmail').value || '';
-    const empStartDate = document.getElementById('empStartDate').value || 'N/A';
     const empEmail = document.getElementById('empEmail') ? document.getElementById('empEmail').value : 'N/A';
     
     const checkedPeriod = document.querySelector('input[name="evalPeriod"]:checked');
@@ -1469,11 +1663,20 @@
     const goal1 = document.getElementById('goal1').value || 'None.';
     const goal2 = document.getElementById('goal2').value || 'None.';
 
+    const empSigTextVal = document.getElementById('empSigModeType').classList.contains('active') ? 
+      `(Typed: ${document.getElementById('empSigText').value})` : 
+      (canvasesState['empSigCanvas'] && canvasesState['empSigCanvas'].drawn ? '(Digitally Signed)' : '(Not Signed)');
+
+    const supSigTextVal = document.getElementById('supSigModeType').classList.contains('active') ? 
+      `(Typed: ${document.getElementById('supSigText').value})` : 
+      (canvasesState['supSigCanvas'] && canvasesState['supSigCanvas'].drawn ? '(Digitally Signed)' : '(Not Signed)');
+
     // Construct rating summary
     let ratingsText = "\nCORE VALUES RATINGS:\n";
     coreValues.forEach(cv => {
       const val = ratings[cv.id] || 'Not Rated';
-      ratingsText += `- ${cv.name}: ${val} / 5\n`;
+      const comment = itemComments[cv.id] ? ` - Comment: ${itemComments[cv.id]}` : '';
+      ratingsText += `- ${cv.name}: ${val} / 5${comment}\n`;
     });
 
     ratingsText += "\nFUNCTIONAL COMPETENCIES RATINGS:\n";
@@ -1481,7 +1684,8 @@
     if (competencies.length > 0) {
       competencies.forEach(fc => {
         const val = ratings[fc.id] || 'Not Rated';
-        ratingsText += `- ${fc.name}: ${val} / 5\n`;
+        const comment = itemComments[fc.id] ? ` - Comment: ${itemComments[fc.id]}` : '';
+        ratingsText += `- ${fc.name}: ${val} / 5${comment}\n`;
       });
     } else {
       ratingsText += "Role not selected or no competencies loaded.\n";
@@ -1503,10 +1707,8 @@
       `Employee ID: ${empId}\n` +
       `Employee Email: ${empEmail}\n` +
       `Job Title: ${empTitle}\n` +
-      `Department: ${empDept}\n` +
       `Supervisor Name: ${supName}\n` +
       `Supervisor Email: ${supEmail}\n` +
-      `Start Date: ${empStartDate}\n` +
       `Evaluation Period: ${period}\n` +
       `Date of Review: ${evalDate}\n` +
       `-----------------------------------\n` +
@@ -1516,6 +1718,8 @@
       `EMPLOYEE SELF-REFLECTION:\n${empComments}\n\n` +
       `SMART GOAL 1:\n${goal1}\n\n` +
       `SMART GOAL 2:\n${goal2}\n\n` +
+      `EMPLOYEE SIGNATURE: ${empSigTextVal}\n` +
+      `SUPERVISOR SIGNATURE: ${supSigTextVal}\n` +
       `-----------------------------------\n` +
       `VIEW OR PRINT COMPLETED FORM LINK:\n` +
       `${returnUrl}\n\n` +
@@ -1534,10 +1738,8 @@
       n: document.getElementById('empName').value,
       i: document.getElementById('empId').value,
       e: document.getElementById('empEmail') ? document.getElementById('empEmail').value : '',
-      d: document.getElementById('empDept').value,
       sn: document.getElementById('supName').value,
       se: document.getElementById('supEmail').value,
-      sd: document.getElementById('empStartDate').value,
       p: checkedPeriod ? checkedPeriod.value : '30-Day',
       dt: document.getElementById('evalDate').value,
       rt: ratings,
@@ -1547,7 +1749,14 @@
       g1: document.getElementById('goal1').value,
       g2: document.getElementById('goal2').value,
       es: getCompressStrokes('empSigCanvas'),
-      ss: getCompressStrokes('supSigCanvas')
+      ss: getCompressStrokes('supSigCanvas'),
+      esm: document.getElementById('empSigModeType').classList.contains('active') ? 'type' : 'draw',
+      est: document.getElementById('empSigText').value,
+      ssm: document.getElementById('supSigModeType').classList.contains('active') ? 'type' : 'draw',
+      sst: document.getElementById('supSigText').value,
+      ic: itemComments,
+      ea: document.getElementById('empAck').checked ? 1 : 0,
+      sa: document.getElementById('supAck').checked ? 1 : 0
     };
     return btoa(unescape(encodeURIComponent(JSON.stringify(state))));
   }
@@ -1676,10 +1885,8 @@
         if (document.getElementById('empEmail')) {
           document.getElementById('empEmail').value = state.e || '';
         }
-        document.getElementById('empDept').value = state.d || '';
         document.getElementById('supName').value = state.sn || '';
         document.getElementById('supEmail').value = state.se || '';
-        document.getElementById('empStartDate').value = state.sd || '';
         
         // Fill radio period
         const periodRadios = document.getElementsByName('evalPeriod');
@@ -1702,6 +1909,21 @@
           rateOverall(state.o);
         }
 
+        // Fill item comments
+        if (state.ic) {
+          itemComments = state.ic;
+          for (const [key, val] of Object.entries(state.ic)) {
+            const input = document.getElementById(`comment-${key}`);
+            if (input) {
+              input.value = val;
+            }
+            const pComment = document.getElementById(`pComment-${key}`);
+            if (pComment) {
+              pComment.textContent = val ? "Comment: " + val : "";
+            }
+          }
+        }
+
         // Fill text comments
         document.getElementById('supComments').value = state.sc || '';
         document.getElementById('empComments').value = state.ec || '';
@@ -1714,6 +1936,31 @@
         }
         if (state.ss) {
           drawCompressedStrokes('supSigCanvas', state.ss);
+        }
+
+        // Restore signature modes and typed text
+        if (state.esm === 'type') {
+          setSigMode('empSig', 'type');
+          document.getElementById('empSigText').value = state.est || '';
+        } else {
+          setSigMode('empSig', 'draw');
+        }
+
+        if (state.ssm === 'type') {
+          setSigMode('supSig', 'type');
+          document.getElementById('supSigText').value = state.sst || '';
+        } else {
+          setSigMode('supSig', 'draw');
+        }
+
+        // Restore acknowledgment checkboxes
+        if (state.ea !== undefined) {
+          document.getElementById('empAck').checked = state.ea === 1;
+          toggleAck('emp');
+        }
+        if (state.sa !== undefined) {
+          document.getElementById('supAck').checked = state.sa === 1;
+          toggleAck('sup');
         }
 
         // Show collaborative mode banner
