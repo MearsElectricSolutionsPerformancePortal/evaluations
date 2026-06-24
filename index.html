@@ -1384,10 +1384,24 @@
       printFuncBody.appendChild(pRow);
     });
 
-    // Setup signature canvases
-    initCanvas('empSigCanvas');
-    initCanvas('supSigCanvas');
-  }
+    // Setup signature canvases safely
+   try {
+     initCanvas('empSigCanvas');
+     initCanvas('supSigCanvas');
+   } catch(e) {
+     console.warn("Signature pads initializing on delay...", e);
+     setTimeout(() => {
+       try {
+         initCanvas('empSigCanvas');
+         initCanvas('supSigCanvas');
+       } catch(err) {
+         console.error("Canvas init deferred:", err);
+       }
+     }, 300);
+   }
+ }
+
+
 
   function rate(key, val) {
     ratings[key] = val;
