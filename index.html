@@ -1273,6 +1273,7 @@
   let itemComments = {}; // Stores justification comments for individual items
 
   function saveComment(key, val) {
+    if (collabMode) return;
     itemComments[key] = val;
     // Keep print view in sync
     const pComment = document.getElementById(`pComment-${key}`);
@@ -1282,6 +1283,7 @@
   }
 
   function toggleAck(type) {
+    if (collabMode && type === 'sup') return;
     const isChecked = document.getElementById(`${type}Ack`).checked;
     const pAck = document.getElementById(`p${type.charAt(0).toUpperCase() + type.slice(1)}Ack`);
     if (pAck) {
@@ -1402,6 +1404,7 @@
   }
 
   function rate(key, val) {
+    if (collabMode) return;
     ratings[key] = val;
     
     // Update Web Buttons UI
@@ -1424,6 +1427,7 @@
   }
 
   function rateOverall(val) {
+    if (collabMode) return;
     overallRating = val;
 
     // Update Web UI
@@ -1546,6 +1550,7 @@
     }
 
     function startDraw(e) {
+      if (canvas.classList.contains('disabled') || canvas.disabled) return;
       drawing = true;
       const coords = getCoords(e);
       lastX = coords.x;
@@ -1621,6 +1626,7 @@
   }
 
   function syncTypedSignature(prefix) {
+    if (collabMode && prefix === 'supSig') return;
     const textVal = document.getElementById(prefix + 'Text').value;
     const printedEl = document.getElementById('p' + prefix.charAt(0).toUpperCase() + prefix.slice(1) + 'Typed');
     if (printedEl) {
@@ -1631,6 +1637,7 @@
   function clearCanvas(canvasId) {
     const state = canvasesState[canvasId];
     if (!state) return;
+    if (state.canvas.classList.contains('disabled') || state.canvas.disabled) return;
     state.ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
     state.drawn = false;
     state.strokes = [];
@@ -1791,7 +1798,7 @@
     const returnUrl = `${baseUrl}?state=${encodeURIComponent(stateStr)}`;
 
     // Construct email components
-    const subject = encodeURIComponent(`Completed Mears Performance Review - ${empName} (${empTitle})`);
+    const subject = encodeURIComponent(`Completed Mears Performance Review - ${period} - ${empName} (${empTitle})`);
     const body = encodeURIComponent(
       `MEARS PERFORMANCE EVALUATION (COMPLETED)\n` +
       `-----------------------------------\n` +
@@ -1958,9 +1965,81 @@
     document.getElementById('shareModal').classList.add('active');
   }
 
-  function resetCollabMode() {
-    if (confirm("Are you sure you want to reset this evaluation and start fresh?")) {
-      window.location.href = window.location.href.split('?')[0];
+  function lockFieldsForEmployee() {
+    // 1. Lock Employee/Supervisor Details
+    const detailsIds = ['empName', 'empId', 'empEmail', 'supName', 'supEmail', 'evalDate'];
+    detailsIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.readOnly = true;
+    });
+
+    // Lock Evaluation Period radios
+    const periodRadios = document.getElementsByName('evalPeriod');
+    periodRadios.forEach(radio => {
+      radio.disabled = true;
+    });
+
+    // 2. Lock Ratings (Core Values & Functional Competencies)
+    const ratingButtons = document.querySelectorAll('.rating-btn');
+    ratingButtons.forEach(btn => {
+      btn.disabled = true;
+      btn.style.pointerEvents = 'none';
+    });
+
+    // 3. Lock Justification Comments (for individual rows)
+    const commentInputs = document.querySelectorAll('.row-comment-input');
+    commentInputs.forEach(input => {
+      input.readOnly = true;
+    });
+
+    // 4. Lock Overall Rating buttons
+    const overallButtons = document.querySelectorAll('.overall-btn');
+    overallButtons.forEach(btn => {
+      btn.disabled = true;
+      btn.style.pointerEvents = 'none';
+    });
+
+    // 5. Lock Supervisor Comments and Goals
+    const supervisorFields = ['supComments', 'goal1', 'goal2'];
+    supervisorFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.readOnly = true;
+    });
+
+    // 6. Hide Speech Dictation (Mic) Buttons on locked fields (keep only for empComments)
+    const micButtons = document.querySelectorAll('.mic-btn');
+    micButtons.forEach(btn => {
+      const onclickStr = btn.getAttribute('onclick') || '';
+      if (!onclickStr.includes('empComments')) {
+        btn.style.display = 'none';
+      }
+    });
+
+    // 7. Lock Supervisor Signature Options
+    const supAck = document.getElementById('supAck');
+    if (supAck) supAck.disabled = true;
+
+    const supSigCanvas = document.getElementById('supSigCanvas');
+    if (supSigCanvas) {
+      supSigCanvas.classList.add('disabled');
+      supSigCanvas.disabled = true;
+    }
+
+    const supSigControls = document.getElementById('supSigCanvasControls');
+    if (supSigControls) supSigControls.style.display = 'none';
+
+    const supSigText = document.getElementById('supSigText');
+    if (supSigText) supSigText.readOnly = true;
+
+    const supSigModeDraw = document.getElementById('supSigModeDraw');
+    const supSigModeType = document.getElementById('supSigModeType');
+    if (supSigModeDraw) {
+      supSigModeDraw.style.display = 'none';
+      supSigModeDraw.disabled = true;
+    }
+    if (supSigModeType) {
+      supSigModeType.style.display = 'none';
+      supSigModeType.disabled = true;
     }
   }
 
@@ -2083,6 +2162,9 @@
             <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
           `;
         }
+
+        // Lock down fields for the employee review
+        lockFieldsForEmployee();
       }
     }
   }
