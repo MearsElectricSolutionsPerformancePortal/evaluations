@@ -1283,7 +1283,6 @@
   }
 
   function toggleAck(type) {
-    if (collabMode && type === 'sup') return;
     const isChecked = document.getElementById(`${type}Ack`).checked;
     const pAck = document.getElementById(`p${type.charAt(0).toUpperCase() + type.slice(1)}Ack`);
     if (pAck) {
@@ -1404,7 +1403,6 @@
   }
 
   function rate(key, val) {
-    if (collabMode) return;
     ratings[key] = val;
     
     // Update Web Buttons UI
@@ -1427,7 +1425,6 @@
   }
 
   function rateOverall(val) {
-    if (collabMode) return;
     overallRating = val;
 
     // Update Web UI
