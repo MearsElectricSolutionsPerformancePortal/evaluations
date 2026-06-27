@@ -1564,6 +1564,28 @@
     window.print();
   }
 
+  function shortenUrl(longUrl, callback, errorCallback) {
+    const callbackName = 'isgd_callback_' + Math.round(100000 * Math.random());
+    window[callbackName] = function(data) {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      if (data.shorturl) {
+        callback(data.shorturl);
+      } else {
+        errorCallback(new Error(data.errormessage || "Failed to shorten URL"));
+      }
+    };
+
+    const script = document.createElement('script');
+    script.src = `https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}&callback=${callbackName}`;
+    script.onerror = function() {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      errorCallback(new Error("Network error"));
+    };
+    document.body.appendChild(script);
+  }
+
   // Construct and send email with evaluation results prefilled
   function emailEvaluation() {
     const empName = document.getElementById('empName').value || 'Employee';
@@ -1615,40 +1637,58 @@
     const baseUrl = window.location.href.split('?')[0];
     const returnUrl = `${baseUrl}?state=${encodeURIComponent(stateStr)}`;
 
-    // Construct email components
-    const subject = encodeURIComponent(`Completed Mears Performance Review - ${period} - ${empName} (${empTitle})`);
-    const body = encodeURIComponent(
-      `MEARS PERFORMANCE EVALUATION (COMPLETED)\n` +
-      `-----------------------------------\n` +
-      `Employee Name: ${empName}\n` +
-      `Employee ID: ${empId}\n` +
-      `Employee Email: ${empEmail}\n` +
-      `Job Title: ${empTitle}\n` +
-      `Supervisor Name: ${supName}\n` +
-      `Supervisor Email: ${supEmail}\n` +
-      `Evaluation Period: ${period}\n` +
-      `Date of Review: ${evalDate}\n` +
-      `-----------------------------------\n` +
-      ratingsText +
-      `\n-----------------------------------\n` +
-      `SUPERVISOR COMMENTS:\n${supComments}\n\n` +
-      `EMPLOYEE SELF-REFLECTION:\n${empComments}\n\n` +
-      `SMART GOAL 1:\n${goal1}\n\n` +
-      `SMART GOAL 2:\n${goal2}\n\n` +
-      `EMPLOYEE SIGNATURE: ${empSigTextVal}\n` +
-      `SUPERVISOR SIGNATURE: ${supSigTextVal}\n` +
-      `-----------------------------------\n` +
-      `VIEW OR PRINT COMPLETED FORM LINK:\n\n` +
-      `To view the evaluation, sign, and finalize it, click the link below:\n\n` +
-      `${returnUrl}\n\n` +
-      `Submitted via 30-60-90 Mobile Evaluations Web App.`
-    );
+    const emailBtn = document.getElementById('emailShareBtn');
+    const originalText = emailBtn ? emailBtn.textContent : "Email to Supervisor";
+    if (emailBtn) {
+      emailBtn.disabled = true;
+      emailBtn.textContent = "Loading link...";
+    }
 
-    const mailtoUrl = `mailto:${supEmail}?subject=${subject}&body=${body}`;
-    const a = document.createElement('a');
-    a.href = mailtoUrl;
-    a.target = '_blank';
-    a.click();
+    shortenUrl(returnUrl, function(shortLink) {
+      if (emailBtn) {
+        emailBtn.disabled = false;
+        emailBtn.textContent = originalText;
+      }
+      const subject = encodeURIComponent(`Completed Mears Performance Review - ${period} - ${empName} (${empTitle})`);
+      const body = encodeURIComponent(
+        `MEARS PERFORMANCE EVALUATION (COMPLETED)\n` +
+        `-----------------------------------\n` +
+        `Employee Name: ${empName}\n` +
+        `Employee ID: ${empId}\n` +
+        `Employee Email: ${empEmail}\n` +
+        `Job Title: ${empTitle}\n` +
+        `Supervisor Name: ${supName}\n` +
+        `Supervisor Email: ${supEmail}\n` +
+        `Evaluation Period: ${period}\n` +
+        `Date of Review: ${evalDate}\n` +
+        `-----------------------------------\n` +
+        ratingsText +
+        `\n-----------------------------------\n` +
+        `SUPERVISOR COMMENTS:\n${supComments}\n\n` +
+        `EMPLOYEE SELF-REFLECTION:\n${empComments}\n\n` +
+        `SMART GOAL 1:\n${goal1}\n\n` +
+        `SMART GOAL 2:\n${goal2}\n\n` +
+        `EMPLOYEE SIGNATURE: ${empSigTextVal}\n` +
+        `SUPERVISOR SIGNATURE: ${supSigTextVal}\n` +
+        `-----------------------------------\n` +
+        `VIEW OR PRINT COMPLETED FORM LINK:\n\n` +
+        `To view the evaluation, sign, and finalize it, click the link below:\n\n` +
+        `${shortLink}\n\n` +
+        `Submitted via 30-60-90 Mobile Evaluations Web App.`
+      );
+
+      const mailtoUrl = `mailto:${supEmail}?subject=${subject}&body=${body}`;
+      const a = document.createElement('a');
+      a.href = mailtoUrl;
+      a.target = '_blank';
+      a.click();
+    }, function(err) {
+      if (emailBtn) {
+        emailBtn.disabled = false;
+        emailBtn.textContent = originalText;
+      }
+      alert("Failed to shorten link: " + err.message + " - Please copy the link manually from the box.");
+    });
   }
 
   // State Serialization
@@ -1724,20 +1764,40 @@
     const empEmail = document.getElementById('empEmail') ? document.getElementById('empEmail').value : '';
     const empName = document.getElementById('empName').value || 'Employee';
     const link = document.getElementById('shareLinkInput').value;
-    const subject = encodeURIComponent(`Mears Review Self-Reflection Request - ${empName}`);
-    const body = encodeURIComponent(
-      `Hi ${empName},\n\n` +
-      `Your supervisor has pre-filled your Mears Performance Evaluation. ` +
-      `Please open the link below on your phone or computer to review the scores/comments, add your Self-Reflection, sign, and send it back:\n\n` +
-      `Evaluation Link:\n\n` +
-      `${link}\n\n` +
-      `Thanks!`
-    );
-    const mailtoUrl = `mailto:${empEmail}?subject=${subject}&body=${body}`;
-    const a = document.createElement('a');
-    a.href = mailtoUrl;
-    a.target = '_blank';
-    a.click();
+
+    const emailBtn = document.getElementById('emailShareBtn');
+    const originalText = emailBtn ? emailBtn.textContent : "Email Link";
+    if (emailBtn) {
+      emailBtn.disabled = true;
+      emailBtn.textContent = "Loading link...";
+    }
+
+    shortenUrl(link, function(shortLink) {
+      if (emailBtn) {
+        emailBtn.disabled = false;
+        emailBtn.textContent = originalText;
+      }
+      const subject = encodeURIComponent(`Mears Review Self-Reflection Request - ${empName}`);
+      const body = encodeURIComponent(
+        `Hi ${empName},\n\n` +
+        `Your supervisor has pre-filled your Mears Performance Evaluation. ` +
+        `Please open the link below on your phone or computer to review the scores/comments, add your Self-Reflection, sign, and send it back:\n\n` +
+        `Evaluation Link:\n\n` +
+        `${shortLink}\n\n` +
+        `Thanks!`
+      );
+      const mailtoUrl = `mailto:${empEmail}?subject=${subject}&body=${body}`;
+      const a = document.createElement('a');
+      a.href = mailtoUrl;
+      a.target = '_blank';
+      a.click();
+    }, function(err) {
+      if (emailBtn) {
+        emailBtn.disabled = false;
+        emailBtn.textContent = originalText;
+      }
+      alert("Failed to shorten link: " + err.message + " - Please copy the link manually from the box.");
+    });
   }
 
   function handleMainAction() {
