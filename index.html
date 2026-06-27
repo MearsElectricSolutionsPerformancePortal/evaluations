@@ -1326,8 +1326,14 @@
         <div class="rating-container">
           ${[1,2,3,4].map(v => `<button class="rating-btn ${cv.id}-btn" data-val="${v}" onclick="rate('${cv.id}', ${v})">${v}</button>`).join('')}
         </div>
-        <div class="row-comment-container" style="margin-top: 8px; width: 100%;">
-          <input type="text" class="row-comment-input" id="comment-${cv.id}" placeholder="Add justification comment..." style="width: 100%; font-size: 13px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--input-bg); color: var(--text); outline: none;" oninput="saveComment('${cv.id}', this.value)">
+        <div class="row-comment-container" style="margin-top: 8px; width: 100%; position: relative;">
+          <input type="text" class="row-comment-input" id="comment-${cv.id}" placeholder="Add justification comment..." style="width: 100%; font-size: 13px; padding: 6px 40px 6px 10px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--input-bg); color: var(--text); outline: none;" oninput="saveComment('${cv.id}', this.value)">
+          <button type="button" class="mic-btn" onclick="startSpeech('comment-${cv.id}', this)" title="Voice Dictation" style="right: 4px; top: 4px; width: 26px; height: 26px; padding: 0;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M5 3a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0V3z"/>
+              <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"/>
+            </svg>
+          </button>
         </div>
       `;
       cvContainer.appendChild(row);
@@ -1363,8 +1369,14 @@
         <div class="rating-container">
           ${[1,2,3,4].map(v => `<button class="rating-btn ${fc.id}-btn" data-val="${v}" onclick="rate('${fc.id}', ${v})">${v}</button>`).join('')}
         </div>
-        <div class="row-comment-container" style="margin-top: 8px; width: 100%;">
-          <input type="text" class="row-comment-input" id="comment-${fc.id}" placeholder="Add justification comment..." style="width: 100%; font-size: 13px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--input-bg); color: var(--text); outline: none;" oninput="saveComment('${fc.id}', this.value)">
+        <div class="row-comment-container" style="margin-top: 8px; width: 100%; position: relative;">
+          <input type="text" class="row-comment-input" id="comment-${fc.id}" placeholder="Add justification comment..." style="width: 100%; font-size: 13px; padding: 6px 40px 6px 10px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--input-bg); color: var(--text); outline: none;" oninput="saveComment('${fc.id}', this.value)">
+          <button type="button" class="mic-btn" onclick="startSpeech('comment-${fc.id}', this)" title="Voice Dictation" style="right: 4px; top: 4px; width: 26px; height: 26px; padding: 0;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M5 3a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0V3z"/>
+              <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"/>
+            </svg>
+          </button>
         </div>
       `;
       funcContainer.appendChild(row);
