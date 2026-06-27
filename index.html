@@ -1495,27 +1495,7 @@
     // Replaced drawing functions with empty to maintain signature code structure without canvas
   }
 
-  function setSigMode(prefix, mode) {
-    const drawBtn = document.getElementById(prefix + 'ModeDraw');
-    const typeBtn = document.getElementById(prefix + 'ModeType');
-    const canvasArea = document.getElementById(prefix + 'CanvasArea');
-    const canvasControls = document.getElementById(prefix + 'CanvasControls');
-    const typeArea = document.getElementById(prefix + 'TypeArea');
-    
-    if (mode === 'type') {
-      drawBtn.classList.remove('active');
-      typeBtn.classList.add('active');
-      canvasArea.style.display = 'none';
-      if (canvasControls) canvasControls.style.display = 'none';
-      typeArea.style.display = 'block';
-    } else {
-      drawBtn.classList.add('active');
-      typeBtn.classList.remove('active');
-      canvasArea.style.display = 'block';
-      if (canvasControls) canvasControls.style.display = 'flex';
-      typeArea.style.display = 'none';
-    }
-  }
+
 
   function syncTypedSignature(prefix) {
     if (collabMode && prefix === 'supSig') return;
@@ -1961,19 +1941,13 @@
           drawCompressedStrokes('supSigCanvas', state.ss);
         }
 
-        // Restore signature modes and typed text
-        if (state.esm === 'type') {
-          setSigMode('empSig', 'type');
+        // Restore typed text
+        if (state.est) {
           document.getElementById('empSigText').value = state.est || '';
-        } else {
-          setSigMode('empSig', 'draw');
         }
 
-        if (state.ssm === 'type') {
-          setSigMode('supSig', 'type');
+        if (state.sst) {
           document.getElementById('supSigText').value = state.sst || '';
-        } else {
-          setSigMode('supSig', 'draw');
         }
 
         // Restore acknowledgment checkboxes

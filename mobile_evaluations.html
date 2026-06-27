@@ -1528,27 +1528,7 @@
     canvas.addEventListener('mouseleave', stopDraw);
   }
 
-  function setSigMode(prefix, mode) {
-    const drawBtn = document.getElementById(prefix + 'ModeDraw');
-    const typeBtn = document.getElementById(prefix + 'ModeType');
-    const canvasArea = document.getElementById(prefix + 'CanvasArea');
-    const canvasControls = document.getElementById(prefix + 'CanvasControls');
-    const typeArea = document.getElementById(prefix + 'TypeArea');
-    
-    if (mode === 'type') {
-      drawBtn.classList.remove('active');
-      typeBtn.classList.add('active');
-      canvasArea.style.display = 'none';
-      if (canvasControls) canvasControls.style.display = 'none';
-      typeArea.style.display = 'block';
-    } else {
-      drawBtn.classList.add('active');
-      typeBtn.classList.remove('active');
-      canvasArea.style.display = 'block';
-      if (canvasControls) canvasControls.style.display = 'flex';
-      typeArea.style.display = 'none';
-    }
-  }
+
 
   function syncTypedSignature(prefix) {
     if (collabMode && prefix === 'supSig') return;
@@ -2026,14 +2006,12 @@
         document.getElementById('goal1').value = state.g1 || '';
         document.getElementById('goal2').value = state.g2 || '';
 
-        // Restore typed signatures
+        // Restore typed text
         if (state.est) {
-          document.getElementById('empSigText').value = state.est;
-          syncTypedSignature('empSig');
+          document.getElementById('empSigText').value = state.est || '';
         }
         if (state.sst) {
-          document.getElementById('supSigText').value = state.sst;
-          syncTypedSignature('supSig');
+          document.getElementById('supSigText').value = state.sst || '';
         }
 
         // Restore acknowledgment checkboxes
