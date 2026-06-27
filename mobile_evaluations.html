@@ -1253,6 +1253,7 @@
     const printCvBody = document.getElementById('printCoreValuesBody');
     printCvBody.innerHTML = '';
 
+    coreValues.forEach(cv => {
       // Web Row
       const row = document.createElement('div');
       row.className = 'eval-row';
