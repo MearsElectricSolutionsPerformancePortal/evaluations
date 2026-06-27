@@ -1863,7 +1863,7 @@
     }
     const stateStr = serializeFormState();
     const baseUrl = window.location.href.split('?')[0];
-    const shareUrl = `${baseUrl}?state=${encodeURIComponent(stateStr)}`;
+    const shareUrl = `${baseUrl}?state=${encodeURIComponent(stateStr)}&user=employee`;
     
     document.getElementById('modalHeader').textContent = "Send to Employee";
     document.getElementById('modalBody').textContent = "Choose how to send this evaluation to the employee. You can copy the link to text it via SMS, WhatsApp, Teams, or click Email Link to draft an email.";
@@ -1982,10 +1982,11 @@
     // 2. Check for state in URL
     const urlParams = new URLSearchParams(window.location.search);
     const stateParam = urlParams.get('state');
+    const userParam = urlParams.get('user');
     if (stateParam) {
       const state = deserializeFormState(stateParam);
       if (state && state.r) {
-        collabMode = true;
+        collabMode = (userParam === 'employee');
         // Load the role specific questions
         loadRole(state.r);
 
@@ -2073,29 +2074,58 @@
           toggleAck('sup');
         }
 
-        // Show collaborative mode banner
-        document.getElementById('collabBanner').style.display = 'block';
+        // Setup UI depending on role (employee vs supervisor)
+        if (collabMode) {
+          // Show collaborative mode banner for employee
+          document.getElementById('collabBanner').style.display = 'block';
+          // Hide role selector card to focus employee on this specific review
+          document.getElementById('roleSelectorCard').style.display = 'none';
+          // Change the title subtitle to make it clear this is collaborative
+          document.getElementById('evaluationSubtitle').textContent = `${state.r.toUpperCase()} EVALUATION - REVIEW MODE`;
 
-        // Hide role selector card to focus employee on this specific review
-        document.getElementById('roleSelectorCard').style.display = 'none';
-        
-        // Change the title subtitle to make it clear this is collaborative
-        document.getElementById('evaluationSubtitle').textContent = `${state.r.toUpperCase()} EVALUATION - REVIEW MODE`;
+          // Customize the action button text for sharing back-and-forth
+          const mainActionBtn = document.getElementById('mainActionBtn');
+          const mainActionText = document.getElementById('mainActionText');
+          if (mainActionBtn && mainActionText) {
+            mainActionText.textContent = "Send Back to Supervisor (Text or Email)";
+            mainActionBtn.style.background = "linear-gradient(135deg, #10b981, #059669)";
+            mainActionBtn.style.boxShadow = "0 4px 15px rgba(16, 185, 129, 0.4)";
+            mainActionBtn.querySelector('svg').innerHTML = `
+              <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
+            `;
+          }
 
-        // Customize the action button text for sharing back-and-forth
-        const mainActionBtn = document.getElementById('mainActionBtn');
-        const mainActionText = document.getElementById('mainActionText');
-        if (mainActionBtn && mainActionText) {
-          mainActionText.textContent = "Send Back to Supervisor (Text or Email)";
-          mainActionBtn.style.background = "linear-gradient(135deg, #10b981, #059669)";
-          mainActionBtn.style.boxShadow = "0 4px 15px rgba(16, 185, 129, 0.4)";
-          mainActionBtn.querySelector('svg').innerHTML = `
-            <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
-          `;
+          // Lock down fields for the employee review
+          lockFieldsForEmployee();
+        } else {
+          // Show edit mode banner for supervisor
+          const banner = document.getElementById('collabBanner');
+          if (banner) {
+            banner.innerHTML = `
+              <div style="font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                <span>📝 Supervisor Review Mode</span>
+                <span style="font-size: 10px; background: rgba(255,255,255,0.25); padding: 2px 6px; border-radius: 12px; font-weight: normal;">EDITABLE</span>
+              </div>
+              Reviewing completed evaluation. All fields are editable. You can make adjustments, print/save the PDF, or send it back to the employee if needed.
+              <button onclick="resetCollabMode()" style="background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; float: right; margin-top: -12px;">Reset Form</button>
+              <div style="clear: both;"></div>
+            `;
+            banner.style.display = 'block';
+          }
+          document.getElementById('roleSelectorCard').style.display = 'none';
+          document.getElementById('evaluationSubtitle').textContent = `${state.r.toUpperCase()} EVALUATION - SUPERVISOR EDIT MODE`;
+
+          const mainActionBtn = document.getElementById('mainActionBtn');
+          const mainActionText = document.getElementById('mainActionText');
+          if (mainActionBtn && mainActionText) {
+            mainActionText.textContent = "Send to Employee (Text or Email)";
+            mainActionBtn.style.background = "linear-gradient(135deg, #6366f1, #4f46e5)";
+            mainActionBtn.style.boxShadow = "0 4px 15px rgba(99, 102, 241, 0.4)";
+            mainActionBtn.querySelector('svg').innerHTML = `
+              <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338L2.01 6.337l12.12-4.103Z"/>
+            `;
+          }
         }
-
-        // Lock down fields for the employee review
-        lockFieldsForEmployee();
       }
     }
   }
