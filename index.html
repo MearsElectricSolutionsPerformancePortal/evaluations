@@ -382,7 +382,7 @@
     }
 
     .print-sig-typed {
-      display: none;
+      display: block;
       font-family: 'Caveat', cursive !important;
       font-size: 22pt !important;
       color: #1e3a8a !important;
@@ -1031,14 +1031,10 @@
         <div class="card">
           <div class="card-title">Signatures</div>
           
-          <!-- Web signature drawing pads -->
+          <!-- Web signature typed fields -->
           <div class="form-group">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <label style="margin-bottom: 0;">Employee Signature:</label>
-              <div class="sig-mode-toggle">
-                <button type="button" class="sig-toggle-btn active" id="empSigModeDraw" onclick="setSigMode('empSig', 'draw')">Draw</button>
-                <button type="button" class="sig-toggle-btn" id="empSigModeType" onclick="setSigMode('empSig', 'type')">Type</button>
-              </div>
+              <label style="margin-bottom: 0;">Employee Signature (Type Name):</label>
             </div>
             <div class="form-group" style="margin-bottom: 10px;">
               <label style="display: flex; align-items: flex-start; gap: 8px; font-weight: normal; font-size: 13px; line-height: 1.4; cursor: pointer; color: var(--text);">
@@ -1046,24 +1042,14 @@
                 <span>I have read and discussed this evaluation with my supervisor.</span>
               </label>
             </div>
-            <div class="signature-area" id="empSigCanvasArea">
-              <canvas id="empSigCanvas"></canvas>
-            </div>
-            <div class="sig-controls" id="empSigCanvasControls">
-              <button type="button" class="sig-btn-clear" onclick="clearCanvas('empSigCanvas')">Clear Signature</button>
-            </div>
-            <div id="empSigTypeArea" style="display: none; position: relative;">
-              <input type="text" id="empSigText" class="sig-type-input" placeholder="Type your full name here..." oninput="syncTypedSignature('empSig')">
+            <div id="empSigTypeArea" style="position: relative;">
+              <input type="text" id="empSigText" class="sig-type-input" placeholder="Type your name here to sign..." oninput="syncTypedSignature('empSig')">
             </div>
           </div>
 
           <div class="form-group" style="margin-top: 15px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <label style="margin-bottom: 0;">Supervisor Signature:</label>
-              <div class="sig-mode-toggle">
-                <button type="button" class="sig-toggle-btn active" id="supSigModeDraw" onclick="setSigMode('supSig', 'draw')">Draw</button>
-                <button type="button" class="sig-toggle-btn" id="supSigModeType" onclick="setSigMode('supSig', 'type')">Type</button>
-              </div>
+              <label style="margin-bottom: 0;">Supervisor Signature (Type Name):</label>
             </div>
             <div class="form-group" style="margin-bottom: 10px;">
               <label style="display: flex; align-items: flex-start; gap: 8px; font-weight: normal; font-size: 13px; line-height: 1.4; cursor: pointer; color: var(--text);">
@@ -1071,14 +1057,8 @@
                 <span>I have read the employee's self reflection and discussed the evaluation with them.</span>
               </label>
             </div>
-            <div class="signature-area" id="supSigCanvasArea">
-              <canvas id="supSigCanvas"></canvas>
-            </div>
-            <div class="sig-controls" id="supSigCanvasControls">
-              <button type="button" class="sig-btn-clear" onclick="clearCanvas('supSigCanvas')">Clear Signature</button>
-            </div>
-            <div id="supSigTypeArea" style="display: none; position: relative;">
-              <input type="text" id="supSigText" class="sig-type-input" placeholder="Type your full name here..." oninput="syncTypedSignature('supSig')">
+            <div id="supSigTypeArea" style="position: relative;">
+              <input type="text" id="supSigText" class="sig-type-input" placeholder="Type your name here to sign..." oninput="syncTypedSignature('supSig')">
             </div>
           </div>
 
@@ -1088,7 +1068,6 @@
               <div style="font-size: 9.5px; font-style: italic; color: #1e3a8a; margin-bottom: 6px; line-height: 1.35;" id="pEmpAck">
                 ☐ I have read and discussed this evaluation with my supervisor.
               </div>
-              <img class="print-sig-image" id="pEmpSigImg" alt="">
               <div class="print-sig-typed" id="pEmpSigTyped"></div>
               <div class="print-sig-line">Employee Signature</div>
               <div style="font-size: 8pt; color: #4a5568; font-style: italic;">Date: __________________</div>
@@ -1097,7 +1076,6 @@
               <div style="font-size: 9.5px; font-style: italic; color: #1e3a8a; margin-bottom: 6px; line-height: 1.35;" id="pSupAck">
                 ☐ I have read the employee's self reflection and discussed the evaluation with them.
               </div>
-              <img class="print-sig-image" id="pSupSigImg" alt="">
               <div class="print-sig-typed" id="pSupSigTyped"></div>
               <div class="print-sig-line">Supervisor Signature</div>
               <div style="font-size: 8pt; color: #4a5568; font-style: italic;">Date: __________________</div>
@@ -1394,21 +1372,7 @@
       printFuncBody.appendChild(pRow);
     });
 
-    // Setup signature canvases safely
-    try {
-      initCanvas('empSigCanvas');
-      initCanvas('supSigCanvas');
-    } catch(e) {
-      console.warn("Signature pads initializing on delay...", e);
-      setTimeout(() => {
-        try {
-          initCanvas('empSigCanvas');
-          initCanvas('supSigCanvas');
-        } catch(err) {
-          console.error("Canvas init deferred:", err);
-        }
-      }, 300);
-    }
+    // (Signature canvas setup removed to support typed-only signatures)
   }
 
   function rate(key, val) {
@@ -1717,32 +1681,20 @@
     document.getElementById('pGoal1').textContent = document.getElementById('goal1').value || 'No goals specified.';
     document.getElementById('pGoal2').textContent = document.getElementById('goal2').value || 'No goals specified.';
 
-    // Export signatures (drawn image or typed text) for printing
-    const empSigMode = document.getElementById('empSigModeType').classList.contains('active') ? 'type' : 'draw';
-    if (empSigMode === 'type' && document.getElementById('empSigText').value) {
-      document.getElementById('pEmpSigTyped').textContent = document.getElementById('empSigText').value;
+    // Export signatures (typed text) for printing
+    const empSigVal = document.getElementById('empSigText').value;
+    if (empSigVal) {
+      document.getElementById('pEmpSigTyped').textContent = empSigVal;
       document.getElementById('pEmpSigTyped').style.display = 'block';
-      document.getElementById('pEmpSigImg').style.display = 'none';
-    } else if (canvasesState['empSigCanvas'] && canvasesState['empSigCanvas'].drawn) {
-      document.getElementById('pEmpSigImg').src = canvasesState['empSigCanvas'].canvas.toDataURL();
-      document.getElementById('pEmpSigImg').style.display = 'block';
-      document.getElementById('pEmpSigTyped').style.display = 'none';
     } else {
-      document.getElementById('pEmpSigImg').style.display = 'none';
       document.getElementById('pEmpSigTyped').style.display = 'none';
     }
 
-    const supSigMode = document.getElementById('supSigModeType').classList.contains('active') ? 'type' : 'draw';
-    if (supSigMode === 'type' && document.getElementById('supSigText').value) {
-      document.getElementById('pSupSigTyped').textContent = document.getElementById('supSigText').value;
+    const supSigVal = document.getElementById('supSigText').value;
+    if (supSigVal) {
+      document.getElementById('pSupSigTyped').textContent = supSigVal;
       document.getElementById('pSupSigTyped').style.display = 'block';
-      document.getElementById('pSupSigImg').style.display = 'none';
-    } else if (canvasesState['supSigCanvas'] && canvasesState['supSigCanvas'].drawn) {
-      document.getElementById('pSupSigImg').src = canvasesState['supSigCanvas'].canvas.toDataURL();
-      document.getElementById('pSupSigImg').style.display = 'block';
-      document.getElementById('pSupSigTyped').style.display = 'none';
     } else {
-      document.getElementById('pSupSigImg').style.display = 'none';
       document.getElementById('pSupSigTyped').style.display = 'none';
     }
 
