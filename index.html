@@ -912,11 +912,10 @@
           
           <!-- Web and Print layout -->
           <div class="rating-legend">
-            <div class="rating-legend-item"><strong>1 - Unacceptable:</strong> Below standard. Major gaps in safety, quality, or attendance. Must improve immediately.</div>
-            <div class="rating-legend-item"><strong>2 - Needs Improvement:</strong> Inconsistent. Meets some expectations but needs training or coaching to meet full standards.</div>
-            <div class="rating-legend-item"><strong>3 - Effective:</strong> Performance consistently meets all expectations and requirements of the role.</div>
-            <div class="rating-legend-item"><strong>4 - Exceeds Expectations:</strong> Performance often goes beyond expectations and standards.</div>
-            <div class="rating-legend-item"><strong>5 - Outstanding:</strong> Performance is consistently exceptional across all areas.</div>
+            <div class="rating-legend-item"><strong>1 - UNACCEPTABLE:</strong> Below standard. Major gaps in safety, quality, or attendance. Must improve immediately.</div>
+            <div class="rating-legend-item"><strong>2 - NEEDS IMPROVEMENT:</strong> Inconsistent. Meets some expectations but needs training or coaching to meet full standards.</div>
+            <div class="rating-legend-item"><strong>3 - MEETS EXPECTATIONS:</strong> Performance consistently meets all expectations and requirements of the role.</div>
+            <div class="rating-legend-item"><strong>4 - EXCEEDS EXPECTATIONS:</strong> Performance often goes beyond expectations and standards.</div>
           </div>
         </div>
 
@@ -933,7 +932,6 @@
               <button class="rating-btn overall-btn" data-val="2" onclick="rateOverall(2)">2</button>
               <button class="rating-btn overall-btn" data-val="3" onclick="rateOverall(3)">3</button>
               <button class="rating-btn overall-btn" data-val="4" onclick="rateOverall(4)">4</button>
-              <button class="rating-btn overall-btn" data-val="5" onclick="rateOverall(5)">5</button>
             </div>
           </div>
 
@@ -942,7 +940,7 @@
             <thead>
               <tr class="print-shaded-tr">
                 <th class="first-col">Overall Performance Rating</th>
-                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+                <th>1</th><th>2</th><th>3</th><th>4</th>
               </tr>
             </thead>
             <tbody>
@@ -955,7 +953,6 @@
                 <td class="rating-val" id="pOverall2">☐</td>
                 <td class="rating-val" id="pOverall3">☐</td>
                 <td class="rating-val" id="pOverall4">☐</td>
-                <td class="rating-val" id="pOverall5">☐</td>
               </tr>
             </tbody>
           </table>
@@ -1115,7 +1112,7 @@
         <div class="card">
           <div class="card-title">Core Values</div>
           <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; font-style: italic;">
-            Tap the rating (1 to 5) for each value. For any rating of Unacceptable (1) or Outstanding (5), enter a comment to justify the rating.
+            Tap the rating (1 to 4) for each value. For any rating of Unacceptable (1) or Exceeds Expectations (4), enter a comment to justify the rating.
           </p>
           
           <div id="coreValuesContainer">
@@ -1127,7 +1124,7 @@
             <thead>
               <tr>
                 <th class="first-col">Core Value</th>
-                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+                <th>1</th><th>2</th><th>3</th><th>4</th>
               </tr>
             </thead>
             <tbody id="printCoreValuesBody">
@@ -1140,7 +1137,7 @@
         <div class="card">
           <div class="card-title">Functional Competencies</div>
           <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; font-style: italic;">
-            Tap the rating (1 to 5) for each competency. For any rating of Unacceptable (1) or Outstanding (5), enter a comment to justify the rating.
+            Tap the rating (1 to 4) for each competency. For any rating of Unacceptable (1) or Exceeds Expectations (4), enter a comment to justify the rating.
           </p>
           
           <div id="functionalContainer">
@@ -1152,7 +1149,7 @@
             <thead>
               <tr>
                 <th class="first-col">Competency / Standard</th>
-                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+                <th>1</th><th>2</th><th>3</th><th>4</th>
               </tr>
             </thead>
             <tbody id="printFuncBody">
@@ -1327,7 +1324,7 @@
         <div class="eval-row-title">${cv.name}</div>
         <div class="eval-row-desc">${cv.desc}</div>
         <div class="rating-container">
-          ${[1,2,3,4,5].map(v => `<button class="rating-btn ${cv.id}-btn" data-val="${v}" onclick="rate('${cv.id}', ${v})">${v}</button>`).join('')}
+          ${[1,2,3,4].map(v => `<button class="rating-btn ${cv.id}-btn" data-val="${v}" onclick="rate('${cv.id}', ${v})">${v}</button>`).join('')}
         </div>
         <div class="row-comment-container" style="margin-top: 8px; width: 100%;">
           <input type="text" class="row-comment-input" id="comment-${cv.id}" placeholder="Add justification comment..." style="width: 100%; font-size: 13px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--input-bg); color: var(--text); outline: none;" oninput="saveComment('${cv.id}', this.value)">
@@ -1343,7 +1340,7 @@
           <span style="font-size: 8pt; color: #4a5568; font-style: italic;">${cv.desc}</span>
           <div style="font-size: 8pt; color: #1e3a8a; font-style: italic; margin-top: 3px;" id="pComment-${cv.id}"></div>
         </td>
-        ${[1,2,3,4,5].map(v => `<td class="rating-val" id="pVal-${cv.id}-${v}">☐</td>`).join('')}
+        ${[1,2,3,4].map(v => `<td class="rating-val" id="pVal-${cv.id}-${v}">☐</td>`).join('')}
       `;
       printCvBody.appendChild(pRow);
     });
@@ -1364,7 +1361,7 @@
         <div class="eval-row-title">${fc.name}</div>
         <div class="eval-row-desc">${fc.desc}</div>
         <div class="rating-container">
-          ${[1,2,3,4,5].map(v => `<button class="rating-btn ${fc.id}-btn" data-val="${v}" onclick="rate('${fc.id}', ${v})">${v}</button>`).join('')}
+          ${[1,2,3,4].map(v => `<button class="rating-btn ${fc.id}-btn" data-val="${v}" onclick="rate('${fc.id}', ${v})">${v}</button>`).join('')}
         </div>
         <div class="row-comment-container" style="margin-top: 8px; width: 100%;">
           <input type="text" class="row-comment-input" id="comment-${fc.id}" placeholder="Add justification comment..." style="width: 100%; font-size: 13px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--input-bg); color: var(--text); outline: none;" oninput="saveComment('${fc.id}', this.value)">
@@ -1380,7 +1377,7 @@
           <span style="font-size: 8pt; color: #4a5568; font-style: italic;">${fc.desc}</span>
           <div style="font-size: 8pt; color: #1e3a8a; font-style: italic; margin-top: 3px;" id="pComment-${fc.id}"></div>
         </td>
-        ${[1,2,3,4,5].map(v => `<td class="rating-val" id="pVal-${fc.id}-${v}">☐</td>`).join('')}
+        ${[1,2,3,4].map(v => `<td class="rating-val" id="pVal-${fc.id}-${v}">☐</td>`).join('')}
       `;
       printFuncBody.appendChild(pRow);
     });
@@ -1416,7 +1413,7 @@
     });
 
     // Update Print Checkboxes UI
-    for (let v = 1; v <= 5; v++) {
+    for (let v = 1; v <= 4; v++) {
       const pTd = document.getElementById(`pVal-${key}-${v}`);
       if (pTd) {
         pTd.innerHTML = (v === val) ? '☒' : '☐';
@@ -1438,7 +1435,7 @@
     });
 
     // Update Print UI
-    for (let v = 1; v <= 5; v++) {
+    for (let v = 1; v <= 4; v++) {
       const pTd = document.getElementById(`pOverall${v}`);
       if (pTd) {
         pTd.innerHTML = (v === val) ? '☒' : '☐';
@@ -1449,7 +1446,7 @@
   function clearOverallBtns() {
     const btns = document.querySelectorAll(`.overall-btn`);
     btns.forEach(btn => btn.classList.remove('active'));
-    for (let v = 1; v <= 5; v++) {
+    for (let v = 1; v <= 4; v++) {
       const pTd = document.getElementById(`pOverall${v}`);
       if (pTd) pTd.innerHTML = '☐';
     }
