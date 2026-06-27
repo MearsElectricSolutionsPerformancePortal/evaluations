@@ -1639,8 +1639,8 @@
       `SUPERVISOR SIGNATURE: ${supSigTextVal}\n` +
       `-----------------------------------\n` +
       `VIEW OR PRINT COMPLETED FORM LINK:\n\n` +
-      `<${returnUrl}>\n\n` +
-      `-----------------------------------\n` +
+      `To view the evaluation, sign, and finalize it, click the link below:\n\n` +
+      `${returnUrl}\n\n` +
       `Submitted via 30-60-90 Mobile Evaluations Web App.`
     );
 
@@ -1730,7 +1730,7 @@
       `Your supervisor has pre-filled your Mears Performance Evaluation. ` +
       `Please open the link below on your phone or computer to review the scores/comments, add your Self-Reflection, sign, and send it back:\n\n` +
       `Evaluation Link:\n\n` +
-      `<${link}>\n\n` +
+      `${link}\n\n` +
       `Thanks!`
     );
     const mailtoUrl = `mailto:${empEmail}?subject=${subject}&body=${body}`;
