@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script>
     window.onerror = function(msg, url, line, col, error) {
+      if (msg === "Script error." || msg === "Script error") {
+        return true; // Ignore cross-origin script error noise (like failed JSONP requests)
+      }
       alert("System Error: " + msg + "\nLine: " + line + "\nPlease tell your developer this exact error message.");
       return false;
     };
@@ -1566,9 +1569,24 @@
 
   function shortenUrl(longUrl, callback, errorCallback) {
     const callbackName = 'isgd_callback_' + Math.round(100000 * Math.random());
+    
+    // Set a timeout of 2.5 seconds to prevent hanging if the JSONP request fails to load/parse
+    const timeoutId = setTimeout(() => {
+      if (window[callbackName]) {
+        delete window[callbackName];
+        if (script.parentNode) {
+          document.body.removeChild(script);
+        }
+        errorCallback(new Error("Shortener timed out"));
+      }
+    }, 2500);
+
     window[callbackName] = function(data) {
+      clearTimeout(timeoutId);
       delete window[callbackName];
-      document.body.removeChild(script);
+      if (script.parentNode) {
+        document.body.removeChild(script);
+      }
       if (data.shorturl) {
         callback(data.shorturl);
       } else {
@@ -1579,8 +1597,11 @@
     const script = document.createElement('script');
     script.src = `https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}&callback=${callbackName}`;
     script.onerror = function() {
+      clearTimeout(timeoutId);
       delete window[callbackName];
-      document.body.removeChild(script);
+      if (script.parentNode) {
+        document.body.removeChild(script);
+      }
       errorCallback(new Error("Network error"));
     };
     document.body.appendChild(script);
