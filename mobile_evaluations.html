@@ -1738,40 +1738,50 @@
       emailBtn.textContent = "Loading link...";
     }
 
-    function sendMail(linkToUse) {
+    function sendMail(linkToUse, isShort) {
       const subject = encodeURIComponent(`Completed Mears Performance Review - ${period} - ${empName} (${empTitle})`);
-      const body = encodeURIComponent(
-        `MEARS PERFORMANCE EVALUATION (COMPLETED)\n` +
-        `-----------------------------------\n` +
-        `Employee Name: ${empName}\n` +
-        `Employee ID: ${empId}\n` +
-        `Employee Email: ${empEmail}\n` +
-        `Job Title: ${empTitle}\n` +
-        `Supervisor Name: ${supName}\n` +
-        `Supervisor Email: ${supEmail}\n` +
-        `Evaluation Period: ${period}\n` +
-        `Date of Review: ${evalDate}\n` +
-        `-----------------------------------\n` +
-        ratingsText +
-        `\n-----------------------------------\n` +
-        `SUPERVISOR COMMENTS:\n${supComments}\n\n` +
-        `EMPLOYEE SELF-REFLECTION:\n${empComments}\n\n` +
-        `SMART GOAL 1:\n${goal1}\n\n` +
-        `SMART GOAL 2:\n${goal2}\n\n` +
-        `EMPLOYEE SIGNATURE: ${empSigTextVal}\n` +
-        `SUPERVISOR SIGNATURE: ${supSigTextVal}\n` +
-        `-----------------------------------\n` +
-        `VIEW OR PRINT COMPLETED FORM LINK:\n\n` +
-        `To view the evaluation, sign, and finalize it, click the link below:\n\n` +
-        `${linkToUse}\n\n` +
-        `Submitted via 30-60-90 Mobile Evaluations Web App.`
-      );
+      
+      let bodyText = "";
+      if (isShort) {
+        bodyText = `MEARS PERFORMANCE EVALUATION (COMPLETED)\n` +
+          `-----------------------------------\n` +
+          `Employee Name: ${empName}\n` +
+          `Employee ID: ${empId}\n` +
+          `Employee Email: ${empEmail}\n` +
+          `Job Title: ${empTitle}\n` +
+          `Supervisor Name: ${supName}\n` +
+          `Supervisor Email: ${supEmail}\n` +
+          `Evaluation Period: ${period}\n` +
+          `Date of Review: ${evalDate}\n` +
+          `-----------------------------------\n` +
+          ratingsText +
+          `\n-----------------------------------\n` +
+          `SUPERVISOR COMMENTS:\n${supComments}\n\n` +
+          `EMPLOYEE SELF-REFLECTION:\n${empComments}\n\n` +
+          `SMART GOAL 1:\n${goal1}\n\n` +
+          `SMART GOAL 2:\n${goal2}\n\n` +
+          `EMPLOYEE SIGNATURE: ${empSigTextVal}\n` +
+          `SUPERVISOR SIGNATURE: ${supSigTextVal}\n` +
+          `-----------------------------------\n` +
+          `VIEW OR PRINT COMPLETED FORM LINK:\n\n` +
+          `To view the evaluation, sign, and finalize it, click the link below:\n\n` +
+          `${linkToUse}\n\n` +
+          `Submitted via 30-60-90 Mobile Evaluations Web App.`;
+      } else {
+        // Fallback short body to keep total mailto URL length under OS/client limits (2,048 chars)
+        bodyText = `MEARS PERFORMANCE EVALUATION (COMPLETED)\n` +
+          `-----------------------------------\n` +
+          `Employee: ${empName}\n` +
+          `Period: ${period}\n` +
+          `Date of Review: ${evalDate}\n` +
+          `-----------------------------------\n\n` +
+          `To view the complete evaluation (including ratings, comments, and signatures), click the direct link below:\n\n` +
+          `${linkToUse}\n\n` +
+          `Submitted via 30-60-90 Mobile Evaluations Web App.`;
+      }
 
-      const mailtoUrl = `mailto:${supEmail}?subject=${subject}&body=${body}`;
-      const a = document.createElement('a');
-      a.href = mailtoUrl;
-      a.target = '_blank';
-      a.click();
+      const mailtoUrl = `mailto:${supEmail}?subject=${subject}&body=${encodeURIComponent(bodyText)}`;
+      window.location.href = mailtoUrl;
     }
 
     shortenUrl(returnUrl, function(shortLink) {
@@ -1779,14 +1789,14 @@
         emailBtn.disabled = false;
         emailBtn.textContent = originalText;
       }
-      sendMail(shortLink);
+      sendMail(shortLink, true);
     }, function(err) {
       if (emailBtn) {
         emailBtn.disabled = false;
         emailBtn.textContent = originalText;
       }
       alert("Note: Could not automatically shorten the URL. Opening your email client with the full direct link instead.");
-      sendMail(returnUrl);
+      sendMail(returnUrl, false);
     });
   }
 
@@ -1882,10 +1892,7 @@
         `Thanks!`
       );
       const mailtoUrl = `mailto:${empEmail}?subject=${subject}&body=${body}`;
-      const a = document.createElement('a');
-      a.href = mailtoUrl;
-      a.target = '_blank';
-      a.click();
+      window.location.href = mailtoUrl;
     }
 
     shortenUrl(link, function(shortLink) {
