@@ -1644,11 +1644,7 @@
       emailBtn.textContent = "Loading link...";
     }
 
-    shortenUrl(returnUrl, function(shortLink) {
-      if (emailBtn) {
-        emailBtn.disabled = false;
-        emailBtn.textContent = originalText;
-      }
+    function sendMail(linkToUse) {
       const subject = encodeURIComponent(`Completed Mears Performance Review - ${period} - ${empName} (${empTitle})`);
       const body = encodeURIComponent(
         `MEARS PERFORMANCE EVALUATION (COMPLETED)\n` +
@@ -1673,7 +1669,7 @@
         `-----------------------------------\n` +
         `VIEW OR PRINT COMPLETED FORM LINK:\n\n` +
         `To view the evaluation, sign, and finalize it, click the link below:\n\n` +
-        `${shortLink}\n\n` +
+        `${linkToUse}\n\n` +
         `Submitted via 30-60-90 Mobile Evaluations Web App.`
       );
 
@@ -1682,12 +1678,21 @@
       a.href = mailtoUrl;
       a.target = '_blank';
       a.click();
+    }
+
+    shortenUrl(returnUrl, function(shortLink) {
+      if (emailBtn) {
+        emailBtn.disabled = false;
+        emailBtn.textContent = originalText;
+      }
+      sendMail(shortLink);
     }, function(err) {
       if (emailBtn) {
         emailBtn.disabled = false;
         emailBtn.textContent = originalText;
       }
-      alert("Failed to shorten link: " + err.message + " - Please copy the link manually from the box.");
+      alert("Note: Could not automatically shorten the URL. Opening your email client with the full direct link instead.");
+      sendMail(returnUrl);
     });
   }
 
@@ -1772,18 +1777,14 @@
       emailBtn.textContent = "Loading link...";
     }
 
-    shortenUrl(link, function(shortLink) {
-      if (emailBtn) {
-        emailBtn.disabled = false;
-        emailBtn.textContent = originalText;
-      }
+    function sendMail(linkToUse) {
       const subject = encodeURIComponent(`Mears Review Self-Reflection Request - ${empName}`);
       const body = encodeURIComponent(
         `Hi ${empName},\n\n` +
         `Your supervisor has pre-filled your Mears Performance Evaluation. ` +
         `Please open the link below on your phone or computer to review the scores/comments, add your Self-Reflection, sign, and send it back:\n\n` +
         `Evaluation Link:\n\n` +
-        `${shortLink}\n\n` +
+        `${linkToUse}\n\n` +
         `Thanks!`
       );
       const mailtoUrl = `mailto:${empEmail}?subject=${subject}&body=${body}`;
@@ -1791,12 +1792,21 @@
       a.href = mailtoUrl;
       a.target = '_blank';
       a.click();
+    }
+
+    shortenUrl(link, function(shortLink) {
+      if (emailBtn) {
+        emailBtn.disabled = false;
+        emailBtn.textContent = originalText;
+      }
+      sendMail(shortLink);
     }, function(err) {
       if (emailBtn) {
         emailBtn.disabled = false;
         emailBtn.textContent = originalText;
       }
-      alert("Failed to shorten link: " + err.message + " - Please copy the link manually from the box.");
+      alert("Note: Could not automatically shorten the URL. Opening your email client with the full direct link instead.");
+      sendMail(link);
     });
   }
 
